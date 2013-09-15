@@ -25,16 +25,24 @@ var graphFuncs = {
     return returnNode ? node : this;
   },
   from: function(name, thing) {
-    var from = this.node(name, thing, true);
-    this.froms[name] = from;
+    this.and = this.from;
+    var names = _.isArray(name) ? name : [name];
+    _.each(names, function(name) {
+      var from = this.node(name, thing, true);
+      this.froms[name] = from;
+    }, this);
     return this;
   },
   to: function(name, thing) {
-    var to = this.node(name, thing, true);
-    _.each(this.froms, function(from, fromName) {
-      from.to[name] = to;
-      to.from[fromName] = from;
-    });
+    this.and = this.to;
+    var names = _.isArray(name) ? name : [name];
+    _.each(names, function(name) {
+      var to = this.node(name, thing, true);
+      _.each(this.froms, function(from, fromName) {
+        from.to[name] = to;
+        to.from[fromName] = from;
+      });
+    }, this);
     return this;
   },
   ancestorsOf: function(name) {
@@ -86,6 +94,9 @@ var graphFuncs = {
     _.each(subGraph, function(node, name) {
       items[name] = node.content;
     });
+    //reset selectors
+    this.descendantsOfs = []; 
+    this.ancestorsOfs = []; 
     return items;
   }
 };
