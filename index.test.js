@@ -17,7 +17,7 @@ it('should create a graph with two nodes and one edge', function() {
   expect(graph.descendantsOf('foo').items.bar).to.be(bar);
 });
 
-it('should only return requested nodes', function() {
+it('should only return descendants nodes', function() {
   var graph = sigmar();
   // foo -> bar -> baz
   graph
@@ -31,6 +31,22 @@ it('should only return requested nodes', function() {
     .to.have.key('bar')
     .and.to.have.key('baz')
     .and.not.to.have.key('foo');
+});
+
+it('should only return ancestors nodes', function() {
+  var graph = sigmar();
+  // foo -> bar -> baz
+  graph
+    .node('foo', foo)
+    .node('bar', bar)
+    .node('baz', baz)
+    .from('foo').to('bar')
+    .from('bar').to('baz');
+  var ancestors = graph.ancestorsOf('bar').items;
+  expect(ancestors)
+    .to.not.have.key('bar')
+    .and.not.to.have.key('baz')
+    .and.to.have.key('foo');
 });
 
     // multiple to's
