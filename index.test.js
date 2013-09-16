@@ -107,7 +107,6 @@ it('should be possible to declare multiple tos with array', function() {
     .to.have.keys('bar', 'baz')
     .and.to.not.have.key('foo');
 });
-/*
 it('should be possible to declare multiple froms with object', function() {
   var graph = sigmar();
   // foo -> baz
@@ -133,22 +132,19 @@ it('should be possible to declare multiple tos with array', function() {
     .to.have.keys('bar', 'baz')
     .and.to.not.have.key('foo');
 });
-*/
-    // object from and to definition
-    //.from({foo: foo, bar: bar}).to({baz: baz, faz: faz}) 
-    
-    // chaining to's
-    //.from('foo').to('bar').to('baz')
+
+//TODO
+// chaining to's
+//.from('foo').to('bar').to('baz')
 
 
-    // SELECTORS
-    // .ancestorsOf('foo').items
-    // .descendantsOf('foo').items
-    // .parentsOf().items
-    // .childrenOf().items
-    // .roots().items
-    // .leafes().items
-    // chaining.items
-    // .ancestorsOf('foo').and.descendantsOf('bar').items
-    // .ancestorsOf('foo').or.descendantsOf('bar').items
+// SELECTORS
+// .parentsOf().items
+// .childrenOf().items
+// .roots().items
+// .leafes().items
+
+// chaining
+// .ancestorsOf('foo').and.descendantsOf('bar').items
+// .ancestorsOf('foo').or.descendantsOf('bar').items
     

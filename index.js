@@ -7,11 +7,12 @@ module.exports = function() {
 function Graph(node) {
   this.nodes = {};
   this.froms = {};
-  this.ancestorsOfs = [];
-  this.descendantsOfs = [];
+  this.ancestorsOfs = {};
+  this.descendantsOfs = {};
 }
 
 var graphFuncs = {
+
   node: function(name, thing, returnNode) {
     var node = this.nodes[name] || {
       content: null,
@@ -24,19 +25,30 @@ var graphFuncs = {
     this.nodes[name] = node;
     return returnNode ? node : this;
   },
+
   from: function(name, thing) {
     this.and = this.from;
-    var names = _.isArray(name) ? name : [name];
-    _.each(names, function(name) {
+    var names = _.isString(name) ? [name] : name;
+    _.each(names, function(name, nameOfObject) {
+      if (_.isPlainObject(names)) {
+        thing = name;
+        name = nameOfObject;
+      }
       var from = this.node(name, thing, true);
       this.froms[name] = from;
     }, this);
     return this;
   },
+
   to: function(name, thing) {
     this.and = this.to;
     var names = _.isArray(name) ? name : [name];
-    _.each(names, function(name) {
+    var names = _.isString(name) ? [name] : name;
+    _.each(names, function(name, nameOfObject) {
+      if (_.isPlainObject(names)) {
+        thing = name;
+        name = nameOfObject;
+      }
       var to = this.node(name, thing, true);
       _.each(this.froms, function(from, fromName) {
         from.to[name] = to;
@@ -45,49 +57,50 @@ var graphFuncs = {
     }, this);
     return this;
   },
-  ancestorsOf: function(name) {
-    this.ancestorsOfs.push(name);
+
+  ancestorsOf: function(name, depth) {
+    this.ancestorsOfs[name] = depth;
     return this;
   },
-  descendantsOf: function(name) {
-    this.descendantsOfs.push(name);
+
+  descendantsOf: function(name, depth) {
+    this.descendantsOfs[name] = depth;
     return this;
   },
-  selectParentsOf: function(name, collection, recursive) {
+
+  selectParentsOf: function(name, collection, depth) {
     var node = this.nodes[name];
     _.each(node.from || {}, function(from, fromName) {
       if (!_.has(collection, fromName)) {
         collection[fromName] = from;
-        if (recursive) {
-          this.selectParentsOf(fromName, collection, recursive);
+        if (depth > 1 || _.isUndefined(depth) || _.isNull(depth)) {
+          this.selectParentsOf(fromName, collection, depth-1);
         }
       }
     }, this);
   },
-  selectChildrenOf: function(name, collection, recursive) {
+
+  selectChildrenOf: function(name, collection, depth) {
     var node = this.nodes[name];
     _.each(node.to || {}, function(to, toName) {
       if (!_.has(collection, toName)) {
         collection[toName] = to;
-        if (recursive) {
-          this.selectChildrenOf(toName, collection, recursive);
+        if (depth > 1 || _.isUndefined(depth) || _.isNull(depth)) {
+          this.selectChildrenOf(toName, collection, depth-1);
         }
       }
     }, this);
   },
+
   getItems: function() {
     var subGraph = {};
     var items = {};
-    if (this.descendantsOfs && this.descendantsOfs.length) {
-      // TODO handle multiple descendantsOf (and, or)
-      var descendantsOf = this.descendantsOfs[0];
-      this.selectChildrenOf(descendantsOf, subGraph, true);
-    }
-    if (this.ancestorsOfs && this.ancestorsOfs.length) {
-      // TODO handle multiple descendantsOf (and, or)
-      var ancestorsOf = this.ancestorsOfs[0];
-      this.selectParentsOf(ancestorsOf, subGraph, true);
-    }
+    _.each(this.descendantsOfs, function(depth, name) {
+      this.selectChildrenOf(name, subGraph, depth);
+    }, this);
+    _.each(this.ancestorsOfs, function(depth, name) {
+      this.selectParentsOf(name, subGraph, depth);
+    }, this);
     if (!subGraph) {
       subGraph = _.clone(this);
     }
@@ -95,10 +108,11 @@ var graphFuncs = {
       items[name] = node.content;
     });
     //reset selectors
-    this.descendantsOfs = []; 
-    this.ancestorsOfs = []; 
+    this.descendantsOfs = {};
+    this.ancestorsOfs = {};
     return items;
   }
+
 };
 
 _.extend(Graph.prototype, graphFuncs);
