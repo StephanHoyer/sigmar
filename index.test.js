@@ -52,7 +52,7 @@ it('should only return ancestors nodes', function() {
     .from('bar').to('baz');
   var ancestors = graph.ancestorsOf('bar').items;
   expect(ancestors)
-    .to.not.have.key('bar', 'baz')
+    .to.not.have.keys('bar', 'baz')
     .and.to.have.key('foo');
 });
 
@@ -75,8 +75,8 @@ it('should be possible to declare multiple froms', function() {
   // bar ---^
   graph.from('foo', foo).and('bar', bar).to('baz', baz);
   expect(graph.ancestorsOf('baz').items)
-    .to.have.key('foo', 'bar')
-    .and.to.not.have.keys('baz');
+    .to.have.keys('foo', 'bar')
+    .and.to.not.have.key('baz');
   expect(graph.descendantsOf('foo').items)
     .to.have.key('baz')
     .and.to.not.have.keys('foo', 'bar');
@@ -88,8 +88,8 @@ it('should be possible to declare multiple froms with array', function() {
   // bar ---^
   graph.from(['foo', 'bar']).to('baz');
   expect(graph.ancestorsOf('baz').items)
-    .to.have.key('foo', 'bar')
-    .and.to.not.have.keys('baz');
+    .to.have.keys('foo', 'bar')
+    .and.to.not.have.key('baz');
   expect(graph.descendantsOf('foo').items)
     .to.have.key('baz')
     .and.to.not.have.keys('foo', 'bar');
