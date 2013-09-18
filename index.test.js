@@ -133,6 +133,18 @@ it('should be possible to declare multiple tos with array', function() {
     .and.to.not.have.key('foo');
 });
 
+it('should be possible to chain tos', function() {
+  var graph = sigmar();
+  // foo -> bar -> baz
+  graph.from('foo').to('bar').to('baz');
+  expect(graph.descendantsOf('foo').items)
+    .to.have.keys('bar', 'baz')
+    .and.not.to.have.key('foo');
+  expect(graph.descendantsOf('bar').items)
+    .to.have.keys('baz')
+    .and.not.to.have.keys('foo', 'bar');
+});
+
 //TODO
 // chaining to's
 //.from('foo').to('bar').to('baz')

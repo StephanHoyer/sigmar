@@ -7,6 +7,7 @@ module.exports = function() {
 function Graph(node) {
   this.nodes = {};
   this.froms = {};
+  this.tos = {};
   this.ancestorsOfs = {};
   this.descendantsOfs = {};
 }
@@ -37,6 +38,7 @@ var graphFuncs = {
       var from = this.node(name, thing, true);
       this.froms[name] = from;
     }, this);
+    this.tos = {};
     return this;
   },
 
@@ -50,10 +52,12 @@ var graphFuncs = {
         name = nameOfObject;
       }
       var to = this.node(name, thing, true);
+      this.froms = _.isEmpty(this.tos) ? this.froms : this.tos;
       _.each(this.froms, function(from, fromName) {
         from.to[name] = to;
         to.from[fromName] = from;
       });
+      this.tos[name] = to;
     }, this);
     return this;
   },
