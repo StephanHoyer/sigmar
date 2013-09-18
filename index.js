@@ -67,6 +67,16 @@ var graphFuncs = {
     return this;
   },
 
+  parentsOf: function(name) {
+    this.ancestorsOf(name, 1);
+    return this;
+  },
+
+  childrenOf: function(name) {
+    this.descendantsOf(name, 1);
+    return this;
+  },
+
   descendantsOf: function(name, depth) {
     this.descendantsOfs[name] = depth;
     return this;
