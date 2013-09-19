@@ -150,13 +150,31 @@ it('should be possible to deselect nodes', function() {
   expect(graph.not.parentsOf('bar').items).to.only.have.keys('bar', 'baz');
 });
 
+it('should be possible to selector recursivly', function() {
+  var graph = sigmar();
+  // foo -> bar -> baz -> foz
+  graph.from('foo').to('bar').to('baz').to('foz');
+  expect(graph.ancestorsOf('foz').items).to.only.have.keys('foo', 'baz', 'bar');
+});
+
+it('should be possible to chain selectors', function() {
+  var graph = sigmar();
+  // foo -> bar -> baz -> foz
+  graph.from('foo').to('bar').to('baz').to('foz');
+  var items = graph.ancestorsOf('bar').and.parentsOf('foz').items;
+  expect(items).to.only.have.keys('foo', 'baz');
+});
+
+it('should be possible to use deselectors and selectors', function() {
+  var graph = sigmar();
+  // foo -> bar -> baz -> foz
+  graph.from('foo').to('bar').to('baz').to('foz');
+  var items = graph.ancestorsOf('foz').and.not.parentsOf('baz').items;
+  expect(items).to.only.have.keys('foo', 'baz');
+});
+
 //TODO
 
 // SELECTORS
 // .roots().items
 // .leafes().items
-// .not.parentsOf('foo').items
-
-// chaining
-// .ancestorsOf('foo').and.descendantsOf('bar').items
-// .ancestorsOf('foo').or.descendantsOf('bar').items

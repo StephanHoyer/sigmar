@@ -69,6 +69,7 @@ var graphFuncs = {
   },
 
   ancestorsOf: function(name, depth) {
+    this.and = this;
     if (this.isNot) {
       this.notAncestorsOfs[name] = depth;
     } else {
@@ -88,6 +89,7 @@ var graphFuncs = {
   },
 
   descendantsOf: function(name, depth) {
+    this.and = this;
     if (this.isNot) {
       this.notDescendantsOfs[name] = depth;
     } else {
@@ -105,7 +107,8 @@ var graphFuncs = {
         delete collection[fromName];
       }
       if (!_.contains(visited, fromName)) {
-        if (depth > 1 || _.isUndefined(depth) || _.isNull(depth)) {
+        depth = _.isNumber(depth) ? depth-1 : null;
+        if (depth !== 0) {
           this.deselectParentsOf(fromName, collection, depth-1, visited);
         }
       }
@@ -117,7 +120,8 @@ var graphFuncs = {
     _.each(node.from || {}, function(from, fromName) {
       if (!_.has(collection, fromName)) {
         collection[fromName] = from;
-        if (depth > 1 || _.isUndefined(depth) || _.isNull(depth)) {
+        depth = _.isNumber(depth) ? depth-1 : null;
+        if (depth !== 0) {
           this.selectParentsOf(fromName, collection, depth-1);
         }
       }
