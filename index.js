@@ -10,6 +10,7 @@ function Graph(node) {
   this.tos = {};
   this.ancestorsOfs = {};
   this.descendantsOfs = {};
+  this.to.from = _.bind(this.from, this);
 }
 
 var graphFuncs = {
@@ -60,6 +61,7 @@ var graphFuncs = {
       newTos[name] = to;
     }, this);
     this.tos = newTos;
+    this.froms = {};
     return this;
   },
 

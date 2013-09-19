@@ -135,6 +135,13 @@ it('should able to select children', function() {
   expect(graph.childrenOf('foo').items).to.only.have.key('bar');
 });
 
+it('should be possible to chain from/to-blocks with and', function() {
+  var graph = sigmar();
+  // baz -> foo -> bar
+  graph.from('foo').to('bar').and.from('baz').to('foo');
+  expect(graph.childrenOf('baz').items).to.only.have.key('foo');
+  expect(graph.childrenOf('foo').items).to.only.have.keys('bar');
+});
 
 //TODO
 
@@ -146,4 +153,3 @@ it('should able to select children', function() {
 // chaining
 // .ancestorsOf('foo').and.descendantsOf('bar').items
 // .ancestorsOf('foo').or.descendantsOf('bar').items
-    
