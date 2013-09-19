@@ -44,7 +44,7 @@ var graphFuncs = {
 
   to: function(name, thing) {
     this.and = this.to;
-    var names = _.isArray(name) ? name : [name];
+    var newTos = {};
     var names = _.isString(name) ? [name] : name;
     _.each(names, function(name, nameOfObject) {
       if (_.isPlainObject(names)) {
@@ -57,8 +57,9 @@ var graphFuncs = {
         from.to[name] = to;
         to.from[fromName] = from;
       });
-      this.tos[name] = to;
+      newTos[name] = to;
     }, this);
+    this.tos = newTos;
     return this;
   },
 
@@ -99,7 +100,8 @@ var graphFuncs = {
     _.each(node.to || {}, function(to, toName) {
       if (!_.has(collection, toName)) {
         collection[toName] = to;
-        if (depth > 1 || _.isUndefined(depth) || _.isNull(depth)) {
+        depth = _.isNumber(depth) ? depth-1 : null;
+        if (depth !== 0) {
           this.selectChildrenOf(toName, collection, depth-1);
         }
       }

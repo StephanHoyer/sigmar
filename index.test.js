@@ -37,8 +37,7 @@ it('should only return descendants nodes', function() {
     .from('bar').to('baz');
   var descendants = graph.descendantsOf('foo').items;
   expect(descendants)
-    .to.have.keys('bar', 'baz')
-    .and.not.to.have.key('foo');
+    .to.only.have.keys('bar', 'baz');
 });
 
 it('should only return ancestors nodes', function() {
@@ -51,9 +50,7 @@ it('should only return ancestors nodes', function() {
     .from('foo').to('bar')
     .from('bar').to('baz');
   var ancestors = graph.ancestorsOf('bar').items;
-  expect(ancestors)
-    .to.not.have.keys('bar', 'baz')
-    .and.to.have.key('foo');
+  expect(ancestors).to.only.have.key('foo');
 });
 
 it('should be possible to declare multiple tos', function() {
@@ -61,12 +58,8 @@ it('should be possible to declare multiple tos', function() {
   // foo -> bar
   //    `-> baz
   graph.from('foo', foo).to('bar', bar).and('baz', baz);
-  expect(graph.ancestorsOf('bar').items)
-    .to.have.key('foo')
-    .and.to.not.have.keys('bar', 'baz');
-  expect(graph.descendantsOf('foo').items)
-    .to.have.keys('bar', 'baz')
-    .and.to.not.have.key('foo');
+  expect(graph.ancestorsOf('bar').items).to.only.have.key('foo');
+  expect(graph.descendantsOf('foo').items).to.only.have.keys('bar', 'baz');
 });
 
 it('should be possible to declare multiple froms', function() {
@@ -74,12 +67,8 @@ it('should be possible to declare multiple froms', function() {
   // foo -> baz
   // bar ---^
   graph.from('foo', foo).and('bar', bar).to('baz', baz);
-  expect(graph.ancestorsOf('baz').items)
-    .to.have.keys('foo', 'bar')
-    .and.to.not.have.key('baz');
-  expect(graph.descendantsOf('foo').items)
-    .to.have.key('baz')
-    .and.to.not.have.keys('foo', 'bar');
+  expect(graph.ancestorsOf('baz').items).to.only.have.keys('foo', 'bar');
+  expect(graph.descendantsOf('foo').items).to.only.have.key('baz');
 });
 
 it('should be possible to declare multiple froms with array', function() {
@@ -87,25 +76,17 @@ it('should be possible to declare multiple froms with array', function() {
   // foo -> baz
   // bar ---^
   graph.from(['foo', 'bar']).to('baz');
-  expect(graph.ancestorsOf('baz').items)
-    .to.have.keys('foo', 'bar')
-    .and.to.not.have.key('baz');
-  expect(graph.descendantsOf('foo').items)
-    .to.have.key('baz')
-    .and.to.not.have.keys('foo', 'bar');
-})
+  expect(graph.ancestorsOf('baz').items).to.only.have.keys('foo', 'bar');
+  expect(graph.descendantsOf('foo').items).to.only.have.key('baz');
+});
 
 it('should be possible to declare multiple tos with array', function() {
   var graph = sigmar();
   // foo -> bar
   //    `-> baz
   graph.from('foo').to(['bar','baz']);
-  expect(graph.ancestorsOf('bar').items)
-    .to.have.key('foo')
-    .and.to.not.have.keys('bar', 'baz');
-  expect(graph.descendantsOf('foo').items)
-    .to.have.keys('bar', 'baz')
-    .and.to.not.have.key('foo');
+  expect(graph.ancestorsOf('bar').items).to.only.have.key('foo');
+  expect(graph.descendantsOf('foo').items).to.only.have.keys('bar', 'baz');
 });
 
 it('should be possible to declare multiple froms with object', function() {
@@ -113,63 +94,47 @@ it('should be possible to declare multiple froms with object', function() {
   // foo -> baz
   // bar ---^
   graph.from({'foo': foo, 'bar': bar}).to('baz', baz);
-  expect(graph.ancestorsOf('baz').items)
-    .to.have.key('foo', 'bar')
-    .and.to.not.have.keys('baz');
-  expect(graph.descendantsOf('foo').items)
-    .to.have.key('baz')
-    .and.to.not.have.keys('foo', 'bar');
-})
+  expect(graph.ancestorsOf('baz').items).to.only.have.key('foo', 'bar');
+  expect(graph.descendantsOf('foo').items).to.only.have.key('baz');
+});
 
 it('should be possible to declare multiple tos with array', function() {
   var graph = sigmar();
   // foo -> bar
   //    `-> baz
   graph.from('foo', foo).to({'bar': bar,'baz': baz});
-  expect(graph.ancestorsOf('bar').items)
-    .to.have.key('foo')
-    .and.to.not.have.keys('bar', 'baz');
-  expect(graph.descendantsOf('foo').items)
-    .to.have.keys('bar', 'baz')
-    .and.to.not.have.key('foo');
+  expect(graph.ancestorsOf('bar').items).to.only.have.key('foo');
+  expect(graph.descendantsOf('foo').items).to.only.have.keys('bar', 'baz');
 });
 
 it('should be possible to chain tos', function() {
   var graph = sigmar();
-  // foo -> bar -> baz
-  graph.from('foo').to('bar').to('baz');
-  expect(graph.descendantsOf('foo').items)
-    .to.have.keys('bar', 'baz')
-    .and.not.to.have.key('foo');
-  expect(graph.descendantsOf('bar').items)
-    .to.have.keys('baz')
-    .and.not.to.have.keys('foo', 'bar');
+  // foo -> bar -> baz -> foz
+  graph.from('foo').to('bar').to('baz').to('foz');
+  console.log(graph.nodes);
+  expect(graph.descendantsOf('foo').items).to.only.have.keys('bar', 'baz', 'foz');
+  expect(graph.descendantsOf('bar').items).to.only.have.keys('baz', 'foz');
+  expect(graph.childrenOf('bar').items).to.only.have.key('baz');
 });
 
 it('should able to select parents', function() {
   var graph = sigmar();
   // foo -> bar -> baz
   graph.from('foo', foo).to('bar', bar).to('baz', baz);
-  expect(graph.parentsOf('baz').items)
-    .to.not.have.keys('foo', 'baz')
-    .and.to.have.key('bar');
+  expect(graph.parentsOf('baz').items).to.only.have.key('bar');
 });
 
 it('should able to select children', function() {
   var graph = sigmar();
   // foo -> bar -> baz
   graph.from('foo', foo).to('bar', bar).to('baz', baz);
-  expect(graph.childrenOf('foo').items)
-    .to.not.have.keys('foo', 'baz')
-    .and.to.have.key('bar');
+  expect(graph.childrenOf('foo').items).to.only.have.key('bar');
 });
 
 
 //TODO
 
 // SELECTORS
-// .parentsOf().items
-// .childrenOf().items
 // .roots().items
 // .leafes().items
 // .not.parentsOf('foo').items
