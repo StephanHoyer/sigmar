@@ -5,9 +5,12 @@ module.exports = function() {
 };
 
 function Graph(node) {
+  this.isNot = false;
   this.nodes = {};
   this.froms = {};
   this.tos = {};
+  this.notAncestorsOfs = {};
+  this.notDescendantsOfs = {};
   this.ancestorsOfs = {};
   this.descendantsOfs = {};
   this.to.from = _.bind(this.from, this);
@@ -66,7 +69,11 @@ var graphFuncs = {
   },
 
   ancestorsOf: function(name, depth) {
-    this.ancestorsOfs[name] = depth;
+    if (this.isNot) {
+      this.notAncestorsOfs[name] = depth;
+    } else {
+      this.ancestorsOfs[name] = depth;
+    }
     return this;
   },
 
@@ -81,8 +88,28 @@ var graphFuncs = {
   },
 
   descendantsOf: function(name, depth) {
-    this.descendantsOfs[name] = depth;
+    if (this.isNot) {
+      this.notDescendantsOfs[name] = depth;
+    } else {
+      this.descendantsOfs[name] = depth;
+    }
     return this;
+  },
+
+  deselectParentsOf: function(name, collection, depth, visited) {
+    visited = visited || [];
+    visited.push(name);
+    var node = this.nodes[name];
+    _.each(node.from || {}, function(from, fromName) {
+      if (_.has(collection, fromName)) {
+        delete collection[fromName];
+      }
+      if (!_.contains(visited, fromName)) {
+        if (depth > 1 || _.isUndefined(depth) || _.isNull(depth)) {
+          this.deselectParentsOf(fromName, collection, depth-1, visited);
+        }
+      }
+    }, this);
   },
 
   selectParentsOf: function(name, collection, depth) {
@@ -92,6 +119,23 @@ var graphFuncs = {
         collection[fromName] = from;
         if (depth > 1 || _.isUndefined(depth) || _.isNull(depth)) {
           this.selectParentsOf(fromName, collection, depth-1);
+        }
+      }
+    }, this);
+  },
+
+  deselectChildrenOf: function(name, collection, depth, visited) {
+    visited = visited || [];
+    visited.push(name);
+    var node = this.nodes[name];
+    _.each(node.to || {}, function(to, toName) {
+      if (_.has(collection, toName)) {
+        delete collection[toName];
+      }
+      if (!_.contains(visited, toName)) {
+        depth = _.isNumber(depth) ? depth-1 : null;
+        if (depth !== 0) {
+          this.deselectChildrenOf(toName, collection, depth-1, visited);
         }
       }
     }, this);
@@ -119,9 +163,15 @@ var graphFuncs = {
     _.each(this.ancestorsOfs, function(depth, name) {
       this.selectParentsOf(name, subGraph, depth);
     }, this);
-    if (!subGraph) {
-      subGraph = _.clone(this);
+    if (_.isEmpty(subGraph)) {
+      subGraph = _.clone(this.nodes);
     }
+    _.each(this.notDescendantsOfs, function(depth, name) {
+      this.deselectChildrenOf(name, subGraph, depth);
+    }, this);
+    _.each(this.notAncestorsOfs, function(depth, name) {
+      this.deselectParentsOf(name, subGraph, depth);
+    }, this);
     _.each(subGraph, function(node, name) {
       items[name] = node.content;
     });
@@ -130,10 +180,14 @@ var graphFuncs = {
     this.ancestorsOfs = {};
     return items;
   }
-
 };
 
 _.extend(Graph.prototype, graphFuncs);
+
+Graph.prototype.__defineGetter__('not', function() {
+  this.isNot = true;
+  return this;
+});
 
 Graph.prototype.__defineGetter__('items', function() {
   return this.getItems();

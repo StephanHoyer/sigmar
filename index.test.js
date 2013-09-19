@@ -143,6 +143,13 @@ it('should be possible to chain from/to-blocks with and', function() {
   expect(graph.childrenOf('foo').items).to.only.have.keys('bar');
 });
 
+it('should be possible to deselect nodes', function() {
+  var graph = sigmar();
+  // foo -> bar -> baz
+  graph.from('foo').to('bar').to('baz');
+  expect(graph.not.parentsOf('bar').items).to.only.have.keys('bar', 'baz');
+});
+
 //TODO
 
 // SELECTORS
