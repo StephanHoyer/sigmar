@@ -1,0 +1,5 @@
+// vim:set ft=javascript:
+
+module.exports = function(scope) {
+  scope.sigmar = require(__dirname + '/index');
+};

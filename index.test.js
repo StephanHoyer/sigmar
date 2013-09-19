@@ -9,6 +9,11 @@ var baz = {};
 
 it('should create a graph with two nodes and one edge', function() {
   var graph = sigmar();
+  expect(graph.from('foo').to('bar').childrenOf('foo').items).to.have.key('bar');
+});
+
+it('should create a graph with two nodes and one edge', function() {
+  var graph = sigmar();
   // foo -> bar
   graph
     .node('foo', foo)
@@ -111,7 +116,6 @@ it('should be possible to chain tos', function() {
   var graph = sigmar();
   // foo -> bar -> baz -> foz
   graph.from('foo').to('bar').to('baz').to('foz');
-  console.log(graph.nodes);
   expect(graph.descendantsOf('foo').items).to.only.have.keys('bar', 'baz', 'foz');
   expect(graph.descendantsOf('bar').items).to.only.have.keys('baz', 'foz');
   expect(graph.childrenOf('bar').items).to.only.have.key('baz');
