@@ -13,9 +13,11 @@
   ],
   "author": "Stephan Hoyer <ste.hoyer@gmail.com>",
   "license": "MIT",
+  "dependencies": {
+    "lodash": "~2.0.0"
+  },
   "devDependencies": {
     "mocha": "~1.12.1",
     "expect.js": "~0.2.0",
-    "lodash": "~2.0.0"
   }
 }
